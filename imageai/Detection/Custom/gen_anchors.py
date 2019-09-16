@@ -73,53 +73,60 @@ def run_kmeans(ann_dims, anchor_num, rand_seed=None):
         old_distances = distances.copy()
 
 
-def generateAnchors(train_annotation_folder, train_image_folder, train_cache_file, model_labels, rand_seed=None):
+def generateAnchors(train_annotation_folder, train_image_folder, train_cache_file, model_labels, rand_seed=None, anchor_array=None):
 
-    print("Generating anchor boxes for training images and annotation...")
-    num_anchors = 9
+    if anchor_array is None:
+        print("Generating anchor boxes for training images and annotation...")
+        num_anchors = 9
 
-    train_imgs, train_labels = parse_voc_annotation(
-        train_annotation_folder,
-        train_image_folder,
-        train_cache_file,
-        model_labels
-    )
+        train_imgs, train_labels = parse_voc_annotation(
+            train_annotation_folder,
+            train_image_folder,
+            train_cache_file,
+            model_labels
+        )
 
-    # run k_mean to find the anchors
-    annotation_dims = []
-    for image in train_imgs:
+        # run k_mean to find the anchors
+        annotation_dims = []
+        for image in train_imgs:
 
-        for obj in image['object']:
-            relative_w = (float(obj['xmax']) - float(obj['xmin']))/image['width']
-            relatice_h = (float(obj["ymax"]) - float(obj['ymin']))/image['height']
-            annotation_dims.append(tuple(map(float, (relative_w,relatice_h))))
+            for obj in image['object']:
+                relative_w = (float(obj['xmax']) - float(obj['xmin']))/image['width']
+                relatice_h = (float(obj["ymax"]) - float(obj['ymin']))/image['height']
+                annotation_dims.append(tuple(map(float, (relative_w,relatice_h))))
 
-    annotation_dims = np.array(annotation_dims)
-    centroids = run_kmeans(annotation_dims, num_anchors, rand_seed)
+        annotation_dims = np.array(annotation_dims)
+        centroids = run_kmeans(annotation_dims, num_anchors, rand_seed)
 
-    # write anchors to file
-    print('Average IOU for', num_anchors, 'anchors:', '%0.2f' % avg_IOU(annotation_dims, centroids))
+        # write anchors to file
+        print('Average IOU for', num_anchors, 'anchors:', '%0.2f' % avg_IOU(annotation_dims, centroids))
 
-    anchors = centroids.copy()
+        anchors = centroids.copy()
 
-    widths = anchors[:, 0]
-    sorted_indices = np.argsort(widths)
+        widths = anchors[:, 0]
+        sorted_indices = np.argsort(widths)
 
-    anchor_array = []
-    reverse_anchor_array = []
-    out_string = ""
-    r = "anchors: ["
-    for i in sorted_indices:
-        anchor_array.append(int(anchors[i, 0] * 416))
-        anchor_array.append(int(anchors[i, 1] * 416))
+        anchor_array = []
+        reverse_anchor_array = []
+        out_string = ""
+        r = "anchors: ["
+        for i in sorted_indices:
+            anchor_array.append(int(anchors[i, 0] * 416))
+            anchor_array.append(int(anchors[i, 1] * 416))
 
-        out_string += str(int(anchors[i, 0] * 416)) + ',' + str(int(anchors[i, 1] * 416)) + ', '
+            out_string += str(int(anchors[i, 0] * 416)) + ',' + str(int(anchors[i, 1] * 416)) + ', '
 
-    reverse_anchor_array.append(anchor_array[12:18])
-    reverse_anchor_array.append(anchor_array[6:12])
-    reverse_anchor_array.append(anchor_array[0:6])
+        reverse_anchor_array.append(anchor_array[12:18])
+        reverse_anchor_array.append(anchor_array[6:12])
+        reverse_anchor_array.append(anchor_array[0:6])
 
-    print("Anchor Boxes generated.")
-    return anchor_array, reverse_anchor_array
+        print("Anchor Boxes generated.")
+        print('anchor_array')
+        print(anchor_array)
+        print('reverse_anchor_array')
+        print(reverse_anchor_array)
+        return anchor_array, reverse_anchor_array
+    else
+        return anchor_array, reverse_anchor_array
 
 
