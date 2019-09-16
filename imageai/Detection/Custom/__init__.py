@@ -148,7 +148,7 @@ class DetectionModelTrainer:
         # let it as a string separated by commas
         self.__train_gpus = ','.join([str(gpu) for gpu in train_gpus])
 
-    def setTrainConfig(self,  object_names_array, batch_size=4, num_experiments=100, train_from_pretrained_model="", rand_seed=None):
+    def setTrainConfig(self,  object_names_array, batch_size=4, num_experiments=100, train_from_pretrained_model="", rand_seed=None, anchors=None):
 
         """
 
@@ -169,7 +169,8 @@ class DetectionModelTrainer:
         self.__model_anchors, self.__inference_anchors = generateAnchors(self.__train_annotations_folder,
                                                                           self.__train_images_folder,
                                                                           self.__train_cache_file, self.__model_labels,
-                                                                          rand_seed)
+                                                                          rand_seed,
+                                                                          anchors)
 
         self.__model_labels = sorted(object_names_array)
         self.__num_objects = len(object_names_array)

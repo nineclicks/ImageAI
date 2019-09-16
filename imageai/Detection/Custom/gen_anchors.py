@@ -73,9 +73,9 @@ def run_kmeans(ann_dims, anchor_num, rand_seed=None):
         old_distances = distances.copy()
 
 
-def generateAnchors(train_annotation_folder, train_image_folder, train_cache_file, model_labels, rand_seed=None, anchor_array=None):
+def generateAnchors(train_annotation_folder, train_image_folder, train_cache_file, model_labels, rand_seed=None, anchors=None):
 
-    if anchor_array is None:
+    if anchors is None:
         print("Generating anchor boxes for training images and annotation...")
         num_anchors = 9
 
@@ -126,7 +126,8 @@ def generateAnchors(train_annotation_folder, train_image_folder, train_cache_fil
         print('reverse_anchor_array')
         print(reverse_anchor_array)
         return anchor_array, reverse_anchor_array
-    else
-        return anchor_array, reverse_anchor_array
+    else:
+        anchor_array = anchors[2] + anchors[1] + anchors [0]
+        return anchor_array, anchors
 
 
